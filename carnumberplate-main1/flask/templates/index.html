@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deteksi plat nomor, Ekstraks teks, dan Enkripsi</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            font-size: 2.5em;
+        }
+
+        form {
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        input[type="submit"] {
+            padding: 12px 25px;
+            border-radius: 5px;
+            border: none;
+            background-color: #5cb85c;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-family: 'Roboto', sans-serif;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #4cae4c;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            width: 80%;
+            max-width: 1200px;
+            margin: 20px auto;
+            gap: 20px;
+        }
+
+        .box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 45%;
+            text-align: center;
+            box-sizing: border-box;
+            transition: transform 0.3s ease;
+        }
+
+        .box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .box h3 {
+            margin-bottom: 20px;
+            color: #444;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+        }
+
+        .box button {
+            padding: 12px 25px;
+            border-radius: 5px;
+            border: none;
+            background-color: #0275d8;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-family: 'Roboto', sans-serif;
+            transition: background-color 0.3s ease;
+        }
+
+        .box button:hover {
+            background-color: #025aa5;
+        }
+
+        .box img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .result {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+            text-align: left;
+            font-family: 'Lato', sans-serif;
+        }
+
+        .uploaded-image {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .uploaded-image img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #666;
+            font-family: 'Lato', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>Deteksi plat nomor, Ekstraks teks, dan Enkripsi</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*">
+        <input type="submit" value="Unggah Gambar">
+    </form>
+
+    {% if filename %}
+        <div class="uploaded-image">
+            <h2>Gambar yang diunggah: {{ filename }}</h2>
+            <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Uploaded Image">
+        </div>
+
+        {% if prediction_image %}
+            <div class="uploaded-image">
+                <h2>Prediksi Gambar:</h2>
+                <img src="{{ url_for('static', filename='uploads/' + prediction_image) }}" alt="Predicted Image">
+            </div>
+        {% endif %}
+
+        <div class="container">
+            <div class="box" id="prediction-box">
+                <h3>1. Deteksi Plat Nomor</h3>
+                <a href="{{ url_for('predict_plate', filename=filename) }}#prediction-box">
+                    <button type="button">Deteksi Plat</button>
+                </a>
+                <div class="result" id="prediction-result">
+                    {% if prediction %}
+                        <p>{{ prediction }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="box" id="text-box">
+                <h3>2. Ekstraks Teks</h3>
+                <a href="{{ url_for('extract_text', filename=filename) }}#text-box">
+                    <button type="button">Ekstraks Teks</button>
+                </a>
+                <div class="result" id="text-result">
+                    {% if extracted_text %}
+                        <p>{{ extracted_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="box" id="encryption-box">
+                <h3>3. Enkripsi</h3>
+                <a href="{{ url_for('encrypt_text', filename=filename, extracted_text=extracted_text) }}#encryption-box">
+                    <button type="button">Enkripsi</button>
+                </a>
+                <div class="result" id="encryption-result">
+                    {% if encrypted_text %}
+                        <p>{{ encrypted_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if encrypted_text %}
+            <div class="box" id="decryption-box">
+                <h3>4. Deskripsi</h3>
+                <form action="{{ url_for('decrypt_text') }}" method="POST">
+                    <input type="text" name="cipher_text" placeholder="Enter Cipher Text" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                    <button type="submit">Deskripsi</button>
+                </form>
+                <div class="result" id="decryption-result">
+                    {% if decrypted_text %}
+                        <p>{{ decrypted_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <footer>
+        &copy; 2024 
+    </footer>
+</body>
+</html>
